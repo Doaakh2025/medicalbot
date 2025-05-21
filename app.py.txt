@@ -1,0 +1,34 @@
+import streamlit as st
+import requests
+
+st.set_page_config(page_title="البوت الطبي الذكي", layout="centered")
+st.title("🤖 البوت الطبي الذكي")
+st.markdown("أدخل الأعراض التي تشعر بها وسيرد عليك البوت بنصيحة طبية أولية.")
+
+user_input = st.text_input("✍️ أدخل الأعراض هنا:")
+
+if st.button("إرسال"):
+    if user_input.strip() == "":
+        st.warning("من فضلك أدخل أعراضًا.")
+    else:
+        url = "https://udify.app/chat/BXE7UHClh3Liaf7T"
+        headers = {
+            "Authorization": "Bearer app-MvMNfrvLnaD8mR9eKbP1Q4I1",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "inputs": user_input,
+            "response_mode": "blocking"
+        }
+
+        with st.spinner("يرجى الانتظار..."):
+            response = requests.post(url, json=payload, headers=headers)
+
+        if response.status_code == 200:
+            result = response.json()
+            reply = result.get("answer") or result.get("response") or "لم يتم الحصول على رد."
+            st.success("رد البوت:")
+            st.write(reply)
+        else:
+            st.error(f"حدث خطأ أثناء الاتصال بالبوت. رمز الحالة: {response.status_code}")
+            st.write(response.text)
